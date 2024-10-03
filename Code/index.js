@@ -1,5 +1,5 @@
-var aws = require("@aws-sdk/client-ec2");
-var ec2 = new aws.EC2Client();
+var aws = require("aws-sdk");
+var ec2 = new aws.EC2();
 
 exports.handler = async function (event) {
   var params = {
