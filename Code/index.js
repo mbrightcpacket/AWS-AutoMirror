@@ -1,5 +1,5 @@
-var aws = require("aws-sdk");
-var ec2 = new aws.EC2();
+const { EC2 } = require("@aws-sdk/client-ec2");
+var ec2 = new EC2();
 
 exports.handler = async function (event) {
   var params = {
@@ -22,19 +22,15 @@ exports.handler = async function (event) {
 
   await ec2
     .describeTrafficMirrorSessions()
-    .promise()
     .then((sessionInfo) =>
       ec2
         .describeInstances(params)
-        .promise()
         .then((data) =>
           ec2
             .describeInstances(altParams)
-            .promise()
             .then((altData) =>
               ec2
                 .describeTrafficMirrorTargets()
-                .promise()
                 .then((mirrTargetData) =>
                   generateMirrorFilter().then((mirrFilterData) => {
                     var _sessionInfo = sessionInfo.TrafficMirrorSessions;
@@ -291,7 +287,6 @@ async function generateMirrorFilter() {
 
   return await ec2
     .describeTrafficMirrorFilters()
-    .promise()
     .then((data) => {
       return new Promise(async (resolve, reject) => {
         var callback = (err, data) => {
@@ -304,7 +299,6 @@ async function generateMirrorFilter() {
         if (data.TrafficMirrorFilters.length == 0) {
           await ec2
             .createTrafficMirrorFilter(mirrFilterParams)
-            .promise()
             .then((trafficMirrorFilterData) =>
               ec2
                 .createTrafficMirrorFilterRule(
@@ -320,7 +314,6 @@ async function generateMirrorFilter() {
                   },
                   callback,
                 )
-                .promise()
                 .then(
                   ec2
                     .createTrafficMirrorFilterRule(
@@ -336,7 +329,6 @@ async function generateMirrorFilter() {
                       },
                       callback,
                     )
-                    .promise()
                     .then(() => {
                       data.TrafficMirrorFilters.push({
                         TrafficMirrorFilterId:
